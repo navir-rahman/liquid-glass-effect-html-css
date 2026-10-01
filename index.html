@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello, World!</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+<form class="form">
+
+  dfsa
+</form>
+
+<style>
+.form {
+  width: 300px;
+  height: 180px;
+
+  border-radius: 52% 48% 33% 67% / 38% 45% 55% 62%;
+
+  box-shadow:
+    inset 20px 20px 20px #0000000d,
+    25px 35px 20px #0000000d,
+    25px 30px 30px #0000000d,
+    inset -20px -20px 25px #ffffffe6;
+
+  transition: all ease 0.5s;
+  position: relative;
+}
+
+.form::before {
+  content: '';
+  position: absolute;
+
+  background-color: #fff;
+  width: 5%;
+  height: 5%;
+
+  left: 25%;
+  top: 25%;
+
+  border-radius: 50%;
+  opacity: 0.5;
+
+  transition: all ease 0.5s;
+}
+
+.form::after {
+  content: '';
+  position: absolute;
+
+  background-color: #fff;
+  width: 10%;
+  height: 10%;
+
+  left: 15%;
+  top: 15%;
+
+  transform: skew(10deg, 0deg);
+  border-radius: 50%;
+  opacity: 0.9;
+
+  transition: all ease 0.5s;
+}
+
+.form:hover {
+  border-radius: 50%;
+}
+
+.form:hover::before {
+  transform: skew(0deg, 0deg) translate(50%, 10%);
+}
+
+.form:hover::after {
+  transform: skew(0deg, 0deg) translate(50%, 10%);
+}
+</style>
+  </body>
+</html>
