@@ -1,0 +1,583 @@
+```html
+<div class="nav" id="nav">
+
+  <!-- ONE CONTINUOUS WATER BLOB -->
+  <div class="water" id="water">
+    <span class="water-light light-1"></span>
+    <span class="water-light light-2"></span>
+  </div>
+
+  <button class="nav-btn active">Home</button>
+  <button class="nav-btn">Projects</button>
+  <button class="nav-btn">About</button>
+  <button class="nav-btn">Contact</button>
+
+</div>
+
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #e8edf2;
+
+  font-family: Arial, sans-serif;
+}
+
+
+/* =========================================================
+   CONNECTED NAVIGATION
+   ========================================================= */
+
+.nav {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 7px;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    inset 2px 2px 8px rgba(0, 0, 0, 0.06),
+    inset -2px -2px 8px rgba(255, 255, 255, 0.8),
+    10px 15px 30px rgba(0, 0, 0, 0.08);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  overflowy: hidden;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.nav-btn {
+
+  position: relative;
+
+  z-index: 3;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  padding: 14px 25px;
+
+  border-radius: 30px;
+
+  color: #555;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: color 0.3s ease;
+}
+
+.nav-btn.active {
+  color: #111;
+}
+
+
+/* =========================================================
+   WATER
+   ========================================================= */
+
+.water {
+
+  position: absolute;
+
+  z-index: 1;
+
+  width: 90px;
+  height: 80px;
+
+  left: 0;
+  top: 0%;
+
+  border-radius:
+    48% 52% 55% 45% /
+    53% 45% 55% 47%;
+
+  transform:
+    translate3d(0, -50%, 0)
+    scale(1);
+
+  background: rgba(255, 255, 255, 0.22);
+
+  box-shadow:
+
+    inset 18px 18px 20px #0000000d,
+
+    inset -18px -18px 24px #ffffffe6,
+
+    12px 18px 22px #00000012;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  pointer-events: none;
+
+  /*
+    This is intentionally fast.
+    The blob follows the mouse continuously,
+    rather than jumping between buttons.
+  */
+
+  transition:
+    width 0.18s ease-out,
+    height 0.18s ease-out,
+    border-radius 0.35s ease-out;
+
+  will-change:
+    transform,
+    left,
+    top,
+    width,
+    height;
+}
+
+
+/* =========================================================
+   WATER HIGHLIGHT
+   ========================================================= */
+
+.water-light {
+
+  position: absolute;
+
+  display: block;
+
+  background: white;
+
+  pointer-events: none;
+
+  border-radius: 50%;
+}
+
+
+/* small reflection */
+
+.light-1 {
+
+  width: 8px;
+  height: 8px;
+
+  left: 23%;
+  top: 23%;
+
+  opacity: 0.55;
+}
+
+
+/* big reflection */
+
+.light-2 {
+
+  width: 17px;
+  height: 17px;
+
+  left: 13%;
+  top: 13%;
+
+  opacity: 0.85;
+
+  transform: skew(10deg);
+}
+
+
+/* =========================================================
+   OPTIONAL: SLIGHT LIQUID DISTORTION
+   ========================================================= */
+
+.nav:hover .water {
+
+  box-shadow:
+
+    inset 18px 18px 20px #0000000d,
+
+    inset -20px -20px 28px #ffffffe6,
+
+    12px 18px 22px #00000012;
+}
+
+</style>
+
+
+<script>
+
+const nav = document.getElementById("nav");
+const water = document.getElementById("water");
+
+const buttons = document.querySelectorAll(".nav-btn");
+
+const light1 = document.querySelector(".light-1");
+const light2 = document.querySelector(".light-2");
+
+
+/* =========================================================
+   WATER PHYSICS
+   ========================================================= */
+
+let mouseX = 0;
+let mouseY = 0;
+
+let waterX = 0;
+let waterY = 0;
+
+let velocityX = 0;
+let velocityY = 0;
+
+let previousX = 0;
+let previousY = 0;
+
+let hovering = false;
+
+
+/* =========================================================
+   FIND ACTIVE BUTTON
+   ========================================================= */
+
+let activeButton =
+  document.querySelector(".nav-btn.active");
+
+
+/* =========================================================
+   INITIAL WATER POSITION
+   ========================================================= */
+
+function putWaterOnButton(button) {
+
+  const navRect =
+    nav.getBoundingClientRect();
+
+  const rect =
+    button.getBoundingClientRect();
+
+  waterX =
+    rect.left -
+    navRect.left +
+    rect.width / 2;
+
+  waterY =
+    rect.top -
+    navRect.top +
+    rect.height / 2;
+
+  mouseX = waterX;
+  mouseY = waterY;
+
+  previousX = mouseX;
+  previousY = mouseY;
+
+  water.style.transform =
+    `translate3d(
+      ${waterX}px,
+      ${waterY - 0}px,
+      0
+    ) translate(-50%, -50%)`;
+}
+
+putWaterOnButton(activeButton);
+
+
+/* =========================================================
+   MOUSE ENTER
+   ========================================================= */
+
+nav.addEventListener("mouseenter", () => {
+
+  hovering = true;
+
+});
+
+
+/* =========================================================
+   MOUSE MOVE
+   ========================================================= */
+
+nav.addEventListener("mousemove", event => {
+
+  const rect =
+    nav.getBoundingClientRect();
+
+  mouseX =
+    event.clientX - rect.left;
+
+  mouseY =
+    event.clientY - rect.top;
+
+});
+
+
+/* =========================================================
+   MOUSE LEAVE
+   ========================================================= */
+
+nav.addEventListener("mouseleave", () => {
+
+  hovering = false;
+
+});
+
+
+/* =========================================================
+   BUTTON CLICK
+   ========================================================= */
+
+buttons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    activeButton = button;
+
+    buttons.forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+  });
+
+});
+
+
+/* =========================================================
+   WATER ANIMATION
+   ========================================================= */
+
+function animate() {
+
+  let targetX;
+  let targetY;
+
+
+  /*
+    When mouse is inside:
+    follow mouse.
+  */
+
+  if (hovering) {
+
+    targetX = mouseX;
+    targetY = mouseY;
+
+  }
+
+  /*
+    When mouse leaves:
+    return to active button.
+  */
+
+  else {
+
+    const navRect =
+      nav.getBoundingClientRect();
+
+    const rect =
+      activeButton.getBoundingClientRect();
+
+    targetX =
+      rect.left -
+      navRect.left +
+      rect.width / 2;
+
+    targetY =
+      rect.top -
+      navRect.top +
+      rect.height / 2;
+
+  }
+
+
+  /* =======================================================
+     SPRING PHYSICS
+     ======================================================= */
+
+  const dx =
+    targetX - waterX;
+
+  const dy =
+    targetY - waterY;
+
+
+  velocityX += dx * 0.09;
+  velocityY += dy * 0.09;
+
+
+  /*
+    Damping.
+
+    Lower = more liquid
+    Higher = more rigid
+  */
+
+  velocityX *= 0.72;
+  velocityY *= 0.72;
+
+
+  waterX += velocityX;
+  waterY += velocityY;
+
+
+  /* =======================================================
+     MOUSE VELOCITY
+     ======================================================= */
+
+  const movementX =
+    mouseX - previousX;
+
+  const movementY =
+    mouseY - previousY;
+
+
+  previousX = mouseX;
+  previousY = mouseY;
+
+
+  /*
+    Calculate movement strength.
+  */
+
+  const speed =
+    Math.min(
+      Math.sqrt(
+        movementX * movementX +
+        movementY * movementY
+      ),
+      30
+    );
+
+
+  /*
+    Direction.
+  */
+
+  const angle =
+    Math.atan2(
+      movementY,
+      movementX
+    );
+
+
+  /*
+    Stretch water in movement direction.
+  */
+
+  const stretch =
+    1 + speed * 0.018;
+
+
+  const squash =
+    1 - speed * 0.009;
+
+
+  /*
+    If moving quickly,
+    the water becomes more elongated.
+  */
+
+  water.style.transform =
+
+    `translate3d(
+      ${waterX}px,
+      ${waterY}px,
+      0
+    )
+    translate(-50%, -50%)
+    rotate(${angle}rad)
+    scale(${stretch}, ${squash})`;
+
+
+  /* =======================================================
+     LIQUID SHAPE
+     ======================================================= */
+
+  const wobble =
+    Math.min(speed * 1.5, 25);
+
+
+  water.style.borderRadius =
+
+    `${50 - wobble}% ${50 + wobble}% 
+     ${50 + wobble}% ${50 - wobble}% /
+     ${50 + wobble}% ${50 - wobble}% 
+     ${50 - wobble}% ${50 + wobble}%`;
+
+
+  /* =======================================================
+     HIGHLIGHTS FOLLOW MOUSE
+     ======================================================= */
+
+  const navRect =
+    nav.getBoundingClientRect();
+
+
+  const localMouseX =
+    mouseX / navRect.width;
+
+  const localMouseY =
+    mouseY / navRect.height;
+
+
+  light1.style.transform =
+
+    `translate(
+      ${localMouseX * 12}px,
+      ${localMouseY * 8}px
+    )`;
+
+
+  light2.style.transform =
+
+    `translate(
+      ${localMouseX * 18}px,
+      ${localMouseY * 12}px
+    )`;
+
+
+  requestAnimationFrame(animate);
+
+}
+
+
+animate();
+
+
+/* =========================================================
+   RESIZE
+   ========================================================= */
+
+window.addEventListener("resize", () => {
+
+  if (!hovering) {
+
+    putWaterOnButton(activeButton);
+
+  }
+
+});
+
+</script>
+```
+
+```
